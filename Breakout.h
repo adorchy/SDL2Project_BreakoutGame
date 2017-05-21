@@ -22,9 +22,12 @@ typedef struct Ball{
 typedef struct Display{
      SDL_Window *g_pWindow;
      SDL_Renderer *g_pRenderer;
-     SDL_Texture *g_pTexture1;
-     SDL_Texture *g_pTexture2;
-     SDL_Texture *g_pTexture3;
+     SDL_Texture *g_pTextureTitle1;
+     SDL_Texture *g_pTextureTitle2;
+     SDL_Texture *g_pTextureTitle3;
+     SDL_Texture *g_pTexturePaddle;
+     //SDL_Texture *g_pTextureBrick;
+
      SDL_Surface *g_pSurface;
 }Display;
 

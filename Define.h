@@ -21,8 +21,8 @@
 // Paddle
 #define PADDLE_MOVE_INCREMENT 280
 #define PADDLE_MAX_SPEED 9
-#define PADDLE_WIDTH 100
-#define PADDLE_HEIGHT 13
+#define PADDLE_WIDTH 128
+#define PADDLE_HEIGHT 32
 
 // Brick
 #define BRICK_NUMBER 7

@@ -29,11 +29,11 @@ int main(int argc, char *argv[])
         introWindow(&myGame, myFont);
     }
 
-    if(myGame.display.g_pTexture1!=NULL)
-        SDL_DestroyTexture(myGame.display.g_pTexture1);
+    if(myGame.display.g_pTextureTitle1!=NULL)
+        SDL_DestroyTexture(myGame.display.g_pTextureTitle1);
 
-    if(myGame.display.g_pTexture2!=NULL)
-        SDL_DestroyTexture(myGame.display.g_pTexture2);
+    if(myGame.display.g_pTextureTitle2!=NULL)
+        SDL_DestroyTexture(myGame.display.g_pTextureTitle2);
 
    while (gameIsRunning) {
             handleGameEvents(&gameIsRunning,&myGame);
