@@ -50,7 +50,9 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Break
 
     myGame->display.g_pWindow=NULL;
     myGame->display.g_pRenderer=NULL;
-    myGame->display.g_pTexture=NULL;
+    myGame->display.g_pTexture1=NULL;
+    myGame->display.g_pTexture2=NULL;
+    myGame->display.g_pTexture3=NULL;
     myGame->display.g_pSurface=NULL;
 
     //initialize SDL
@@ -108,66 +110,61 @@ OUTPUT : window with 2 textures containing text
 *********************************************************************/
 void introWindow(BreakoutGame *myGame, font myFont){
 
-    SDL_Color fontColor={255,255,255};
+     SDL_Color fontColor={255,255,255};
+    SDL_Rect IntroRect1; //Rectangle used to display character chain
+    IntroRect1.x=MAIN_TEXT_X;//start point (x)
+    IntroRect1.y=MAIN_TEXT_Y;// start point (y)
+    IntroRect1.w=MAIN_TEXT_W; //Width
+    IntroRect1.h=MAIN_TEXT_H; //Height
 
-    myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO PONG!", fontColor);//Charge la police
-     if(myGame->display.g_pSurface)
-     {
-
-                SDL_Rect IntroRect1; //Rectangle used to display character chain
-                IntroRect1.x=MAIN_TEXT_X;//start point (x)
-                IntroRect1.y=MAIN_TEXT_Y;// start point (y)
-                IntroRect1.w=MAIN_TEXT_W; //Width
-                IntroRect1.h=MAIN_TEXT_H; //Height
-
-                 myGame->display.g_pTexture = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+    if (myGame->display.g_pTexture1==NULL)
+    {
+        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO BREAKOUT!", fontColor);//Charge la police
+        if(myGame->display.g_pSurface)
+        {
+                 myGame->display.g_pTexture1 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
                  SDL_FreeSurface(myGame->display.g_pSurface);
-
-
-                 if(myGame->display.g_pTexture){
-                        //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexture,NULL,&IntroRect1);
-                        SDL_DestroyTexture(myGame->display.g_pTexture);
-                 }
-                 else
-                 {
-                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
-                 }
-    }
+        }
         else
         {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
-
-    myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//load font
-     if(myGame->display.g_pSurface)
-     {
-                SDL_Rect IntroRect2; //Rectangle to write character chain
-                IntroRect2.x=START_X; //start point (x)
-                IntroRect2.y=START_Y; // start point (y)
-                IntroRect2.w=START_W; //Width
-                IntroRect2.h=START_H; //Height
-
-                 myGame->display.g_pTexture = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-                 SDL_FreeSurface(myGame->display.g_pSurface);
-
-                 if(myGame->display.g_pTexture)
-                 {
-                        //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexture,NULL,&IntroRect2);
-                        SDL_DestroyTexture(myGame->display.g_pTexture);
-                        SDL_RenderPresent(myGame->display.g_pRenderer);
-                 }
-                 else
-                 {
-                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
-                 }
     }
     else
     {
-            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        //  copy a portion of the texture to the current rendering target
+        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexture1,NULL,&IntroRect1);
+        //SDL_DestroyTexture(myGame->displayGame.g_pTexture1);
     }
 
+    SDL_Rect IntroRect2; //Rectangle to write character chain
+    IntroRect2.x=START_X; //start point (x)
+    IntroRect2.y=START_Y; // start point (y)
+    IntroRect2.w=START_W; //Width
+    IntroRect2.h=START_H; //Height
+
+    if (myGame->display.g_pTexture2==NULL)
+    {
+        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//load font
+        if(myGame->display.g_pSurface)
+        {
+             myGame->display.g_pTexture2 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+             SDL_FreeSurface(myGame->display.g_pSurface);
+        }
+        else
+        {
+        fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+    }
+    else
+    {
+        //  copy a portion of the texture to the current rendering target
+        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexture2,NULL,&IntroRect2);
+        // SDL_DestroyTexture(myGame->displayGame.g_pTexture2);
+
+    }
+
+    SDL_RenderPresent(myGame->display.g_pRenderer);
     myGame->display.g_pSurface=NULL;
 }
 
@@ -504,12 +501,12 @@ void ballMovementAndScore(BreakoutGame *myGame){
     }
 
     //ball speed cap
-    if (myGame->ball.sx>BALL_RADIUS-3){
-            myGame->ball.sx=BALL_RADIUS-3;
+    if (myGame->ball.sx>BALL_RADIUS-2){
+            myGame->ball.sx=BALL_RADIUS-2;
             }
 
-    if (myGame->ball.sy<-BALL_RADIUS-3){
-          myGame->ball.sy=-BALL_RADIUS-3;
+    if (myGame->ball.sy<-BALL_RADIUS-2){
+          myGame->ball.sy=-BALL_RADIUS-2;
           }
 
     //ball movement
@@ -549,44 +546,42 @@ INPUT : gameObject, fontObject
 OUTPUT : window with 1 texture containing the name of the winner.
 *********************************************************************/
 void endWindow (BreakoutGame *myGame, font myFont, int winner){
-    SDL_Color fontColor={255,255,255};
+SDL_Color fontColor={255,255,255};
 
-    if (winner==0)
+    SDL_Rect Window1; //Rectangle used to display character chain
+    Window1.x=MAIN_TEXT_X;//start point (x)
+    Window1.y=MAIN_TEXT_Y;// start point (y)
+    Window1.w=MAIN_TEXT_W; //Width
+    Window1.h=MAIN_TEXT_H; //Height
+
+    if (myGame->display.g_pTexture3==NULL)
     {
-        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You lost!", fontColor);
-    }
-    else
-    {
-        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You won!", fontColor);
-    }
+        if (winner==0)
+        {
+            myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You lost!", fontColor);
+        }
+        else
+        {
+            myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You won!", fontColor);
+        }
 
-     if(myGame->display.g_pSurface)
-     {
-
-                SDL_Rect Window1; //Rectangle used to display character chain
-                Window1.x=MAIN_TEXT_X;//start point (x)
-                Window1.y=MAIN_TEXT_Y;// start point (y)
-                Window1.w=MAIN_TEXT_W; //Width
-                Window1.h=MAIN_TEXT_H; //Height
-
-                 myGame->display.g_pTexture = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-                 SDL_FreeSurface(myGame->display.g_pSurface);
-
-                 if(myGame->display.g_pTexture){
-                        //  copy a portion of the texture to the current rendering target
-                        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexture,NULL,&Window1);
-                        SDL_DestroyTexture(myGame->display.g_pTexture);
-                        SDL_RenderPresent(myGame->display.g_pRenderer);
-                 }
-                 else
-                 {
-                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
-                 }
-    }
+        if(myGame->display.g_pSurface)
+         {
+                     myGame->display.g_pTexture3 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+                     SDL_FreeSurface(myGame->display.g_pSurface);
+        }
         else
         {
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
+    }
+
+    if(myGame->display.g_pTexture3)
+    {
+            //  copy a portion of the texture to the current rendering target
+            SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexture3,NULL,&Window1);
+            SDL_RenderPresent(myGame->display.g_pRenderer);
+    }
 }
 
 /********************************************************************
@@ -603,11 +598,17 @@ void destroy(BreakoutGame *myGame){
 
     //Destroy surface
     if(myGame->display.g_pSurface!=NULL)
-         SDL_FreeSurface(myGame->display.g_pSurface);
+        SDL_FreeSurface(myGame->display.g_pSurface);
 
     //Destroy texture
-    if(myGame->display.g_pTexture!=NULL)
-         SDL_DestroyTexture(myGame->display.g_pTexture);
+    if(myGame->display.g_pTexture1!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTexture1);
+
+    if(myGame->display.g_pTexture2!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTexture2);
+
+    if(myGame->display.g_pTexture3!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTexture3);
 
     //Destroy window
     if(myGame->display.g_pWindow!=NULL)
