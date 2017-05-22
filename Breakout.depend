@@ -1,11 +1,11 @@
 # depslib dependency file v1.0
-1495409393 source:c:\users\arnaud\documents\programming\sdl2_breakout\breakoutfunctions.c
+1495490440 source:c:\users\arnaud\documents\programming\sdl2_breakout\breakoutfunctions.c
 	"Breakout.h"
 
-1495409683 c:\users\arnaud\documents\programming\sdl2_breakout\breakout.h
+1495489050 c:\users\arnaud\documents\programming\sdl2_breakout\breakout.h
 	"Define.h"
 
-1495407375 c:\users\arnaud\documents\programming\sdl2_breakout\define.h
+1495489050 c:\users\arnaud\documents\programming\sdl2_breakout\define.h
 	<stdio.h>
 	<stdlib.h>
 	<SDL2/SDL.h>
@@ -344,6 +344,6 @@
 	"begin_code.h"
 	"close_code.h"
 
-1495407375 source:c:\users\arnaud\documents\programming\sdl2_breakout\main.c
+1495485078 source:c:\users\arnaud\documents\programming\sdl2_breakout\main.c
 	"Breakout.h"
 

@@ -25,7 +25,9 @@
 #define PADDLE_HEIGHT 32
 
 // Brick
-#define BRICK_NUMBER 7
+#define BRICK_NUMBER 8
+#define BRICK_WIDTH 83
+#define BRICK_HEIGHT 31
 
 // Position of "Welcome to Pong" window
 #define  MAIN_TEXT_X SCREEN_WIDTH/2-SCREEN_WIDTH/4;//start point (x)
