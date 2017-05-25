@@ -16,7 +16,7 @@
 
 // Ball
 #define BALL_RADIUS 12.0
-#define BOUNCE_SPEED 1.2
+#define BOUNCE_SPEED 1.1
 
 // Paddle
 #define PADDLE_MOVE_INCREMENT 280
@@ -25,22 +25,28 @@
 #define PADDLE_HEIGHT 32
 
 // Brick
-#define BRICK_NUMBER 18
+#define BRICK_NUMBER 48
 #define BRICK_WIDTH 83
 #define BRICK_HEIGHT 31
 
-// Position of "Welcome to Pong" window
-#define  MAIN_TEXT_X SCREEN_WIDTH/2-SCREEN_WIDTH/4;//start point (x)
-#define  MAIN_TEXT_Y SCREEN_HEIGHT/3;// start point (y)
-#define  MAIN_TEXT_W SCREEN_WIDTH/2; //Width
-#define  MAIN_TEXT_H SCREEN_HEIGHT/8; //Height
+//Score
+#define SCORE_WINDOW_X 20
+#define SCORE_WINDOW_Y 20
+#define SCORE_WINDOW_W 100
+#define SCORE_WINDOW_H 50
+
+// Position of "Welcome to Breakout" window
+#define  MAIN_TITLE_X SCREEN_WIDTH/2-SCREEN_WIDTH/4;//start point (x)
+#define  MAIN_TITLE_Y SCREEN_HEIGHT/3;// start point (y)
+#define  MAIN_TITLE_W SCREEN_WIDTH/2; //Width
+#define  MAIN_TITLE_H SCREEN_HEIGHT/8; //Height
 
 // Position of "Press space to start" window
 
-#define START_X SCREEN_WIDTH/2-SCREEN_WIDTH/8;//start point (x)
-#define START_Y SCREEN_HEIGHT/1.8;// start point (y)
-#define START_W SCREEN_WIDTH/4; //Width
-#define START_H SCREEN_HEIGHT/15; //Height
+#define SECONDARY_TITLE_X SCREEN_WIDTH/2-SCREEN_WIDTH/8;//start point (x)
+#define SECONDARY_TITLE_Y SCREEN_HEIGHT/1.8;// start point (y)
+#define SECONDARY_TITLE_W SCREEN_WIDTH/4; //Width
+#define SECONDARY_TITLE_H SCREEN_HEIGHT/15; //Height
 
 
 #endif // DEFINE_H_INCLUDED

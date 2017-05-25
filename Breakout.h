@@ -44,6 +44,7 @@ typedef struct BreakoutGame{
     Paddle paddle;
     Brick bricks[BRICK_NUMBER];
     float timer;
+    int score;
 
 }BreakoutGame;
 
@@ -54,9 +55,6 @@ typedef struct font{
     TTF_Font *g_font;
 }font;
 
-enum Collision {
-    Top, Bottom, Right, Left, None
-};
 
 enum BOOL{
     True,False
@@ -79,12 +77,13 @@ void renderBall(BreakoutGame *myGame, int R, int G, int B);
 void renderPlayerScore (BreakoutGame *myGame, font myFont);
 void renderBreakoutGame (BreakoutGame myGame, font myFont);
 
-enum Collision CheckCollisionBallWalls (BreakoutGame myGame);
-enum Collision CheckCollisionBallBrick (BreakoutGame *myGame);
+
 void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont);
-void resetBall (BreakoutGame *myGame);
 enum BOOL CheckCollisionBallPaddles (BreakoutGame myGame);
-void ballMovementAndScore(BreakoutGame *myGame);
+void handleCollisionBallWalls (BreakoutGame *myGame);
+void handleCollisionBallBrick (BreakoutGame *myGame);
+void resetBall (BreakoutGame *myGame);
+void ballMovement(BreakoutGame *myGame);
 void delay(unsigned int frameLimit);
 void endWindow (BreakoutGame *myGame, font myFont, int winner);
 void destroy(BreakoutGame *myGame);
