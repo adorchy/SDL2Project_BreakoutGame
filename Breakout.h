@@ -27,6 +27,7 @@ typedef struct Display{
      SDL_Texture *g_pTextureText3;
      SDL_Texture *g_pTexturePaddle;
      SDL_Texture *g_pTextureBrick;
+     SDL_Texture *g_pTextureSide;
      SDL_Surface *g_pSurface;
 }Display;
 
@@ -45,6 +46,7 @@ typedef struct BreakoutGame{
     Brick bricks[BRICK_NUMBER];
     float timer;
     int score;
+    int life;
 
 }BreakoutGame;
 
@@ -65,9 +67,11 @@ void initBreakoutGame (BreakoutGame *myGame);
 void initFont (font *myFont);
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,BreakoutGame *myGame);
 
+void loadIntroTextures (BreakoutGame *myGame, font myFont);
 void handleIntroEvents(int *introIsRunning, int *gameIsRunning, BreakoutGame *myGame);
-void introWindow(BreakoutGame *myGame, font myFont);
-void loadBricksTexture (BreakoutGame *myGame);
+void displayIntroWindow(BreakoutGame *myGame);
+void destroyIntroTextures(BreakoutGame *myGame);
+void loadGameTextures (BreakoutGame *myGame);
 void handleGameEvents(int *gameIsRunning, BreakoutGame *myGame);
 void playerPaddleMove (BreakoutGame *myGame);
 
@@ -86,6 +90,6 @@ void handleCollisionBallBrick (BreakoutGame *myGame);
 void resetBall (BreakoutGame *myGame);
 void ballMovement(BreakoutGame *myGame);
 void delay(unsigned int frameLimit);
-void endWindow (BreakoutGame *myGame, font myFont, int winner);
-void destroy(BreakoutGame *myGame);
+void displayEndWindow (BreakoutGame *myGame, font myFont, int winner);
+void destroyGame(BreakoutGame *myGame);
 void releaseFont (font *myFont);

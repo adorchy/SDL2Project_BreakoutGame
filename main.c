@@ -24,18 +24,15 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
     }
 
+    loadIntroTextures (&myGame, myFont);
+
     while (introIsRunning){
         handleIntroEvents(&introIsRunning,&gameIsRunning,&myGame);
-        introWindow(&myGame, myFont);
+        displayIntroWindow(&myGame);
     }
 
-    if(myGame.display.g_pTextureText1!=NULL)
-        SDL_DestroyTexture(myGame.display.g_pTextureText1);
-
-    if(myGame.display.g_pTextureText2!=NULL)
-        SDL_DestroyTexture(myGame.display.g_pTextureText2);
-
-    loadBricksTexture (&myGame);
+    destroyIntroTextures (&myGame);
+    loadGameTextures (&myGame);
 
    while (gameIsRunning) {
             handleGameEvents(&gameIsRunning,&myGame);
@@ -52,7 +49,7 @@ int main(int argc, char *argv[])
     }
 
         // free pointer
-        destroy(&myGame);
+        destroyGame(&myGame);
         releaseFont (&myFont);
 
         //free memory

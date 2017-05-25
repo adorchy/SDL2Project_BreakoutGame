@@ -24,6 +24,10 @@
 #define PADDLE_WIDTH 128
 #define PADDLE_HEIGHT 32
 
+//Side
+#define SIDE_WIDTH 16
+#define SIDE_HEIGHT 600
+
 // Brick
 #define BRICK_NUMBER 48
 #define BRICK_WIDTH 83

@@ -18,14 +18,15 @@ void initBreakoutGame (BreakoutGame *myGame){
  //results
  myGame->timer=0.0;
  myGame->score=0;
+ myGame->life=5;
 
 //Bricks
 int i,x,y;
-for (i=0, x=16, y=120 ; i<BRICK_NUMBER; i++, x+=BRICK_WIDTH) // increment x
+for (i=0, x=SIDE_WIDTH, y=120 ; i<BRICK_NUMBER; i++, x+=BRICK_WIDTH) // increment x
     {
         if (i==BRICK_NUMBER/2 || i==BRICK_NUMBER/4 || i==BRICK_NUMBER*3/4) //every x brick number increment y by BRICK_HEIGHT and reset x to 0
         {
-            x=16;
+            x=SIDE_WIDTH;
             y+=BRICK_HEIGHT;
         }
         myGame->bricks[i].state=1;
@@ -70,8 +71,8 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Break
     myGame->display.g_pTextureText3=NULL;
     myGame->display.g_pTexturePaddle=NULL;
     myGame->display.g_pTextureBrick=NULL;
+    myGame->display.g_pTextureSide=NULL;
     myGame->display.g_pSurface=NULL;
-
 
     //initialize SDL
 
@@ -88,6 +89,37 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Break
         return 0;
     }
     return 1;
+}
+
+void loadIntroTextures (BreakoutGame *myGame, font myFont){
+    SDL_Color fontColor={255,255,255};
+
+    //Title 1
+    myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO BREAKOUT!", fontColor);//Charge la police
+    if(myGame->display.g_pSurface)
+    {
+             myGame->display.g_pTextureText1 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+             SDL_FreeSurface(myGame->display.g_pSurface);
+    }
+    else
+    {
+        fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+    }
+
+    //Title 2
+    myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//load font
+    if(myGame->display.g_pSurface)
+    {
+         myGame->display.g_pTextureText2 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+         SDL_FreeSurface(myGame->display.g_pSurface);
+    }
+    else
+    {
+    fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+    }
+
+    myGame->display.g_pSurface=NULL;
+
 }
 
 /********************************************************************
@@ -126,34 +158,17 @@ PURPOSE : create and display an introduction window
 INPUT : gameObject, fontObject
 OUTPUT : window with 2 textures containing text
 *********************************************************************/
-void introWindow(BreakoutGame *myGame, font myFont){
+void displayIntroWindow(BreakoutGame *myGame){
 
-     SDL_Color fontColor={255,255,255};
     SDL_Rect IntroRect1; //Rectangle used to display character chain
     IntroRect1.x=MAIN_TITLE_X;//start point (x)
     IntroRect1.y=MAIN_TITLE_Y;// start point (y)
     IntroRect1.w=MAIN_TITLE_W; //Width
     IntroRect1.h=MAIN_TITLE_H; //Height
 
-    if (myGame->display.g_pTextureText1==NULL)
-    {
-        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "WELCOME TO BREAKOUT!", fontColor);//Charge la police
-        if(myGame->display.g_pSurface)
-        {
-                 myGame->display.g_pTextureText1 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-                 SDL_FreeSurface(myGame->display.g_pSurface);
-        }
-        else
-        {
-            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
-        }
-    }
-    else
-    {
-        //  copy a portion of the texture to the current rendering target
-        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText1,NULL,&IntroRect1);
-        //SDL_DestroyTexture(myGame->displayGame.g_pTexture1);
-    }
+    //  copy a portion of the texture to the current rendering target
+    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText1,NULL,&IntroRect1);
+
 
     SDL_Rect IntroRect2; //Rectangle to write character chain
     IntroRect2.x=SECONDARY_TITLE_X; //start point (x)
@@ -161,52 +176,91 @@ void introWindow(BreakoutGame *myGame, font myFont){
     IntroRect2.w=SECONDARY_TITLE_W; //Width
     IntroRect2.h=SECONDARY_TITLE_H; //Height
 
-    if (myGame->display.g_pTextureText2==NULL)
+    //  copy a portion of the texture to the current rendering target
+    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText2,NULL,&IntroRect2);
+
+
+    SDL_RenderPresent(myGame->display.g_pRenderer);
+
+}
+
+void destroyIntroTextures(BreakoutGame *myGame){
+    if(myGame->display.g_pTextureText1!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTextureText1);
+
+    if(myGame->display.g_pTextureText2!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTextureText2);
+}
+
+void loadGameTextures (BreakoutGame *myGame){
+    // bricks
+    myGame->display.g_pSurface = IMG_Load("./assets/bricks.png");//Img loading
+
+    if(myGame->display.g_pSurface)
     {
-        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Press space to start", fontColor);//load font
-        if(myGame->display.g_pSurface)
+        // create a texture from an existing surface.
+        myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+        SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
+        //SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
+
+        if (!myGame->display.g_pTextureBrick)
         {
-             myGame->display.g_pTextureText2 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-             SDL_FreeSurface(myGame->display.g_pSurface);
-        }
-        else
-        {
-        fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+            fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
         }
     }
     else
     {
-        //  copy a portion of the texture to the current rendering target
-        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText2,NULL,&IntroRect2);
-        // SDL_DestroyTexture(myGame->displayGame.g_pTexture2);
-
+        fprintf(stdout,"IMG_Load: %s\n", IMG_GetError()); // handle error
     }
 
-    SDL_RenderPresent(myGame->display.g_pRenderer);
-    myGame->display.g_pSurface=NULL;
-}
+    // paddle
+    myGame->display.g_pSurface = IMG_Load("./assets/paddle.png");//Img loading
 
-void loadBricksTexture (BreakoutGame *myGame){
-    myGame->display.g_pSurface = IMG_Load("./assets/bricks.png");//Img loading
-
-    if(!myGame->display.g_pSurface)
-        {
-            fprintf(stdout,"IMG_Load: %s\n", IMG_GetError()); // handle error
-        }
-
-        if(myGame->display.g_pSurface)
-        {
+    if(myGame->display.g_pSurface){
             // create a texture from an existing surface.
-            myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-            SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
-            //SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
+        myGame->display.g_pTexturePaddle = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+        SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
+
+        if (!myGame->display.g_pTexturePaddle)
+        {
+            fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
         }
         else
         {
-            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+            SDL_QueryTexture(myGame->display.g_pTexturePaddle,NULL,NULL,NULL,NULL); // query the attributes of a texture
         }
 
-        myGame->display.g_pSurface=NULL;
+    }
+    else
+    {
+        fprintf(stdout,"IMG_Load: %s\n", IMG_GetError());;
+    }
+
+    // side
+    myGame->display.g_pSurface = IMG_Load("./assets/side.png");//Img loading
+
+    if(myGame->display.g_pSurface){
+            // create a texture from an existing surface.
+        myGame->display.g_pTextureSide = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+        SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
+
+        if (!myGame->display.g_pTextureSide)
+        {
+            fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
+        }
+        else
+        {
+            SDL_QueryTexture(myGame->display.g_pTextureSide,NULL,NULL,NULL,NULL); // query the attributes of a texture
+        }
+
+    }
+    else
+    {
+        fprintf(stdout,"IMG_Load: %s\n", IMG_GetError()); // handle error
+    }
+
+    //free pointer
+    myGame->display.g_pSurface=NULL;
 }
 
 /********************************************************************************************
@@ -261,15 +315,17 @@ OUTPUT : paddle1.py
 void playerPaddleMove (BreakoutGame *myGame){
 
     if (myGame->paddle.px>myGame->paddle.dx){
-        if (myGame->paddle.px>0){ // if paddle not at
+        if (myGame->paddle.px>SIDE_WIDTH) // stuck paddle inside the screen (right side)
+        {
                 myGame->paddle.px-=PADDLE_MAX_SPEED;
-                }
+        }
     }
 
     if (myGame->paddle.px<myGame->paddle.dx){
-        if (myGame->paddle.px<SCREEN_WIDTH-PADDLE_WIDTH){ // if paddle not
+        if (myGame->paddle.px<SCREEN_WIDTH-PADDLE_WIDTH-SIDE_WIDTH) // stuck paddle inside the screen (left side)
+        {
             myGame->paddle.px+=PADDLE_MAX_SPEED;
-            }
+        }
     }
 }
 
@@ -316,30 +372,27 @@ void renderBricks(BreakoutGame *myGame) {
             rectangleDest.x=myGame->bricks[i].x;
             rectangleDest.y=myGame->bricks[i].y;
 
-                if (myGame->bricks[i].color == 0)
-                {
-                    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&redRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
-                }
+            if (myGame->bricks[i].color == 0)
+            {
+                SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&redRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+            }
 
-                if (myGame->bricks[i].color == 1)
-                {
-                    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&yellowRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
-                }
+            if (myGame->bricks[i].color == 1)
+            {
+                SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&yellowRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+            }
 
-                if (myGame->bricks[i].color == 2)
-                {
-                    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&greenRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
-                }
+            if (myGame->bricks[i].color == 2)
+            {
+                SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&greenRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+            }
 
-                if (myGame->bricks[i].color == 3)
-                {
-                    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&blueRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
-                }
-                //SDL_DestroyTexture(myGame->display.g_pTextureBrick);
-
+            if (myGame->bricks[i].color == 3)
+            {
+                SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&blueRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+            }
         }
     }
-    myGame->display.g_pSurface=NULL;
 }
 
 /********************************************************************
@@ -361,25 +414,8 @@ void renderPaddle(BreakoutGame *myGame) {
     rectangleSource.w=128;
     rectangleSource.h=32;
 
-    myGame->display.g_pSurface = IMG_Load("./assets/paddle.png");//Img loading
+    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexturePaddle,&rectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
 
-    if(!myGame->display.g_pSurface) {
-        fprintf(stdout,"IMG_Load: %s\n", IMG_GetError()); // handle error
-    }
-
-    if(myGame->display.g_pSurface){
-            // create a texture from an existing surface.
-        myGame->display.g_pTexturePaddle = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-        SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
-        SDL_QueryTexture(myGame->display.g_pTexturePaddle,NULL,NULL,NULL,NULL); // query the attributes of a texture
-        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTexturePaddle,&rectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
-        SDL_DestroyTexture(myGame->display.g_pTexturePaddle);
-    }
-    else
-    {
-        fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
-    }
-    myGame->display.g_pSurface=NULL;
 }
 
 /********************************************************************
@@ -388,20 +424,27 @@ INPUT : gameObject, color (RGB)
 OUTPUT : chain of espaced rectangles
 *********************************************************************/
 void renderBorders(BreakoutGame *myGame, int colorR, int colorG, int colorB){
-/*
-        int y;
-        SDL_SetRenderDrawColor(myGame->display.g_pRenderer,colorR,colorG,colorB,255);
 
-        for (y=10; y<SCREEN_HEIGHT-10; y=y+15){
+    SDL_Rect rectangleDest1;
+    rectangleDest1.x=0;
+    rectangleDest1.y=0;
+    rectangleDest1.w=SIDE_WIDTH;
+    rectangleDest1.h=SCREEN_HEIGHT;
 
-        SDL_Rect Rectangle;
-        Rectangle.x=SCREEN_WIDTH/2-LINE_WIDTH/2;
-        Rectangle.y=y;
-        Rectangle.w=LINE_WIDTH;
-        Rectangle.h=LINE_HEIGHT;
+    SDL_Rect rectangleDest2;
+    rectangleDest2.x=SCREEN_WIDTH-SIDE_WIDTH;
+    rectangleDest2.y=0;
+    rectangleDest2.w=SIDE_WIDTH;
+    rectangleDest2.h=SCREEN_HEIGHT;
 
-        SDL_RenderFillRect(myGame->display.g_pRenderer, &Rectangle);
-        }*/
+    SDL_Rect rectangleSource;
+    rectangleSource.x=0;
+    rectangleSource.y=0;
+    rectangleSource.w=SIDE_WIDTH;
+    rectangleSource.h=SIDE_HEIGHT;
+
+    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureSide,&rectangleSource,&rectangleDest1); // copy a portion of the texture to the current rendering target
+    SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureSide,&rectangleSource,&rectangleDest2);
 }
 
 /********************************************************************
@@ -437,17 +480,14 @@ void renderPlayerScore (BreakoutGame *myGame, font myFont){
         SDL_Color fontColor={255,255,255};
         myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);
 
+        // Rectangle used to display score
+        SDL_Rect playerScoreRect;
+        playerScoreRect.x=SCORE_WINDOW_X;//start point (x)
+        playerScoreRect.y=SCORE_WINDOW_Y; //start point (y)
+        playerScoreRect.w=SCORE_WINDOW_W; //Width
+        playerScoreRect.h=SCORE_WINDOW_Y; //Height
 
         if(myGame->display.g_pSurface){
-
-
-                // Rectangle used to display character chain
-                SDL_Rect playerScoreRect;
-                playerScoreRect.x=SCORE_WINDOW_X;//start point (x)
-                playerScoreRect.y=SCORE_WINDOW_Y; //start point (y)
-                playerScoreRect.w=SCORE_WINDOW_W; //Width
-                playerScoreRect.h=SCORE_WINDOW_Y; //Height
-
 
                  myGame->display.g_pTextureText1 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
                  SDL_FreeSurface(myGame->display.g_pSurface);
@@ -515,7 +555,7 @@ OUTPUT : ball.px, ball.py, ball.sx, ball.sy
 *********************************************************************/
 void resetBall (BreakoutGame *myGame){
     myGame->ball.px= SCREEN_WIDTH/2 + (rand () % 200);
-    myGame->ball.py= SCREEN_HEIGHT/2 + (rand () % 200);
+    myGame->ball.py= SCREEN_HEIGHT/3 + (rand () % 200);
     myGame->ball.sx= (rand () % 2 + 4) + cos (rand () % 90);
     myGame->ball.sy= (rand () % 1 + 2) + cos (rand () % 90);
 
@@ -551,7 +591,7 @@ OUTPUT : Return Right or Left or Top or Bottom or None
 *********************************************************************/
 void handleCollisionBallWalls (BreakoutGame *myGame){
     //check if ball hit right side
-    if (myGame->ball.px >=SCREEN_WIDTH-BALL_RADIUS)
+    if (myGame->ball.px >=SCREEN_WIDTH-BALL_RADIUS-SIDE_WIDTH)
     {
         if (myGame->ball.sx>0)
         {
@@ -560,7 +600,7 @@ void handleCollisionBallWalls (BreakoutGame *myGame){
         }
     }
     //check if ball hit left side
-    if (myGame->ball.px <=BALL_RADIUS)
+    if (myGame->ball.px <=SIDE_WIDTH+BALL_RADIUS)
     {
         if (myGame->ball.sx<0)
         {
@@ -723,7 +763,7 @@ PURPOSE : create and display a window displaying the winner
 INPUT : gameObject, fontObject
 OUTPUT : window with 1 texture containing the name of the winner.
 *********************************************************************/
-void endWindow (BreakoutGame *myGame, font myFont, int winner){
+void displayEndWindow (BreakoutGame *myGame, font myFont, int winner){
 SDL_Color fontColor={255,255,255};
 
     SDL_Rect Window1; //Rectangle used to display character chain
@@ -768,7 +808,7 @@ Destroy the rendering context, the texture and the surface
 Free RGB surface
 INPUT: GameObject
 *********************************************************************/
-void destroy(BreakoutGame *myGame){
+void destroyGame(BreakoutGame *myGame){
 
     //Destroy render
     if(myGame->display.g_pRenderer!=NULL)
@@ -793,6 +833,9 @@ void destroy(BreakoutGame *myGame){
 
     if(myGame->display.g_pTextureBrick!=NULL)
         SDL_DestroyTexture(myGame->display.g_pTextureBrick);
+
+    if(myGame->display.g_pTextureSide!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTextureSide);
 
     //Destroy window
     if(myGame->display.g_pWindow!=NULL)
