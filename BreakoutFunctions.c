@@ -201,7 +201,7 @@ void loadGameTextures (BreakoutGame *myGame){
         // create a texture from an existing surface.
         myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
         SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
-        //SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
+        SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
 
         if (!myGame->display.g_pTextureBrick)
         {
