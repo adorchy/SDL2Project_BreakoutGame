@@ -29,24 +29,24 @@
 #define BRICK_WIDTH 83
 #define BRICK_HEIGHT 31
 
-//Score
+//Position of Score window
 #define SCORE_WINDOW_X 20
 #define SCORE_WINDOW_Y 20
 #define SCORE_WINDOW_W 100
 #define SCORE_WINDOW_H 50
 
-// Position of "Welcome to Breakout" window
+// Position of Main Title window
 #define  MAIN_TITLE_X SCREEN_WIDTH/2-SCREEN_WIDTH/4;//start point (x)
 #define  MAIN_TITLE_Y SCREEN_HEIGHT/3;// start point (y)
-#define  MAIN_TITLE_W SCREEN_WIDTH/2; //Width
-#define  MAIN_TITLE_H SCREEN_HEIGHT/8; //Height
+#define  MAIN_TITLE_W SCREEN_WIDTH/2;
+#define  MAIN_TITLE_H SCREEN_HEIGHT/8;
 
-// Position of "Press space to start" window
+// Position of Secondary window
 
 #define SECONDARY_TITLE_X SCREEN_WIDTH/2-SCREEN_WIDTH/8;//start point (x)
 #define SECONDARY_TITLE_Y SCREEN_HEIGHT/1.8;// start point (y)
-#define SECONDARY_TITLE_W SCREEN_WIDTH/4; //Width
-#define SECONDARY_TITLE_H SCREEN_HEIGHT/15; //Height
+#define SECONDARY_TITLE_W SCREEN_WIDTH/4;
+#define SECONDARY_TITLE_H SCREEN_HEIGHT/15;
 
 
 #endif // DEFINE_H_INCLUDED
