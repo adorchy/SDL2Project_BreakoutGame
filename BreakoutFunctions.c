@@ -20,14 +20,15 @@ void initBreakoutGame (BreakoutGame *myGame){
 
 //Bricks
 int i,x,y;
-for (i=0, x=0, y=0 ; i<BRICK_NUMBER; i++, x+=BRICK_WIDTH)
+for (i=0, x=0, y=0 ; i<BRICK_NUMBER; i++, x+=BRICK_WIDTH) // increment x
     {
-        if (i==4) //every x brick number increment y by BRICK_HEIGHT and reset x to 0
+        if (i==BRICK_NUMBER/2) //every x brick number increment y by BRICK_HEIGHT and reset x to 0
         {
             x=0;
             y+=BRICK_HEIGHT;
         }
         myGame->bricks[i].state=1;
+        myGame->bricks[i].color=rand() % 4;
         myGame->bricks[i].x=x;
         myGame->bricks[i].y=y;
     }
@@ -259,11 +260,29 @@ void renderBricks(BreakoutGame *myGame) {
         rectangleDest.w=BRICK_WIDTH;
         rectangleDest.h=BRICK_HEIGHT;
 
-        SDL_Rect rectangleSource;
-        rectangleSource.x=0;
-        rectangleSource.y=0;
-        rectangleSource.w=64;
-        rectangleSource.h=24;
+        SDL_Rect redRectangleSource;
+        redRectangleSource.x=0;
+        redRectangleSource.y=0;
+        redRectangleSource.w=64;
+        redRectangleSource.h=24;
+
+        SDL_Rect yellowRectangleSource;
+        yellowRectangleSource.x=64;
+        yellowRectangleSource.y=0;
+        yellowRectangleSource.w=64;
+        yellowRectangleSource.h=24;
+
+        SDL_Rect greenRectangleSource;
+        greenRectangleSource.x=0;
+        greenRectangleSource.y=24;
+        greenRectangleSource.w=64;
+        greenRectangleSource.h=24;
+
+        SDL_Rect blueRectangleSource;
+        blueRectangleSource.x=64;
+        blueRectangleSource.y=24;
+        blueRectangleSource.w=64;
+        blueRectangleSource.h=24;
 
         int i;
         for (i=0 ; i<BRICK_NUMBER; i++)
@@ -286,7 +305,27 @@ void renderBricks(BreakoutGame *myGame) {
                         myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
                         SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
                         SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
-                        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&rectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+
+
+                        if (myGame->bricks[i].color == 0)
+                        {
+                            SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&redRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+                        }
+
+                        if (myGame->bricks[i].color == 1)
+                        {
+                            SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&yellowRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+                        }
+
+                        if (myGame->bricks[i].color == 2)
+                        {
+                            SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&greenRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+                        }
+
+                        if (myGame->bricks[i].color == 3)
+                        {
+                            SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&blueRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
+                        }
                         SDL_DestroyTexture(myGame->display.g_pTextureBrick);
                     }
                     else
@@ -471,7 +510,61 @@ enum Collision CheckCollisionBallWalls (BreakoutGame myGame){
 
     // if no collision
     return None;
-};
+}
+
+/********************************************************************
+PURPOSE : Check if the ball hits a brick
+INPUT : gameObject
+OUTPUT : Return Right or Left or Top or Bottom or None
+*********************************************************************/
+enum Collision CheckCollisionBallBrick (BreakoutGame *myGame){
+
+    int i;
+    for (i=0 ; i<BRICK_NUMBER; i++)
+    {
+        if (
+            myGame->bricks[i].state==1 &&
+            myGame->ball.px-BALL_RADIUS<=myGame->bricks[i].x+BRICK_WIDTH &&
+            myGame->ball.px+BALL_RADIUS>=myGame->bricks[i].x &&
+            myGame->ball.py+BALL_RADIUS>=myGame->bricks[i].y &&
+            myGame->ball.py-BALL_RADIUS<=myGame->bricks[i].y+BRICK_HEIGHT
+            )
+        {
+            // myGame->bricks[i].state=0; // hide the brick
+            fprintf(stdout,"collision against brick\n");
+
+            if (myGame->ball.py>myGame->bricks[i].y+BRICK_HEIGHT)
+            {
+                myGame->bricks[i].state=0;
+                fprintf(stdout,"collision against bottom side of brick\n");
+                return Bottom;
+            }
+
+            if (myGame->ball.py<myGame->bricks[i].y)
+            {
+                myGame->bricks[i].state=0;
+                return Top;
+            }
+
+            if (myGame->ball.px>myGame->bricks[i].x+BRICK_WIDTH)
+            {
+                myGame->bricks[i].state=0;
+                return Right;
+            }
+
+            if (myGame->ball.px<myGame->bricks[i].x)
+            {
+                myGame->bricks[i].state=0;
+                return Left;
+            }
+
+
+        }
+    }
+    // if no collision
+    return None;
+}
+
 
 /********************************************************************
 PURPOSE : Check if the AI or player has won.
@@ -541,37 +634,40 @@ OUTPUT : ball.px, ball.py and/or ball.sy and/or (score.player or score.AI)
 *************************************************************************/
 void ballMovementAndScore(BreakoutGame *myGame){
     // if ball hit right wall
-    if (CheckCollisionBallWalls (*myGame)== Right){
-            if (myGame->ball.sx>0){
-                    myGame->ball.sx=-myGame->ball.sx*BOUNCE_SPEED;
-                    myGame->ball.sy*=1.15;
-            }
-
-
+    if (CheckCollisionBallWalls (*myGame)== Right || CheckCollisionBallBrick(myGame) == Left)
+    {
+        if (myGame->ball.sx>0){
+                myGame->ball.sx=-myGame->ball.sx*BOUNCE_SPEED;
+                myGame->ball.sy*=1.15;
+        }
     }
 
     // if ball hit left wall
-    if (CheckCollisionBallWalls (*myGame)== Left)
+    if (CheckCollisionBallWalls (*myGame)== Left || CheckCollisionBallBrick(myGame) == Right)
     {
         if (myGame->ball.sx<0)
         {
                 myGame->ball.sx=-myGame->ball.sx*BOUNCE_SPEED;
                 myGame->ball.sy*=1.15;
         }
-
     }
 
-    // if ball hit Top
-     if (CheckCollisionBallWalls (*myGame)== Top)
+    // if ball hit Top wall
+     if (CheckCollisionBallWalls (*myGame)== Top || CheckCollisionBallBrick(myGame) == Bottom)
      {
          myGame->ball.sy=-myGame->ball.sy*BOUNCE_SPEED;
      }
 
-    // if ball hit Bottom
+    // if ball hit Bottom wall
     if (CheckCollisionBallWalls (*myGame)== Bottom)
     {
-        //myGame->score.player+=1;
         resetBall (myGame);
+    }
+
+    // if ball hit Top brick
+    if (CheckCollisionBallBrick(myGame) == Top)
+    {
+        myGame->ball.sy=-myGame->ball.sy*BOUNCE_SPEED;
     }
 
     // if ball hit a racket
@@ -581,10 +677,10 @@ void ballMovementAndScore(BreakoutGame *myGame){
         {
             myGame->ball.sx*=1.15;
             myGame->ball.sy=-myGame->ball.sy*BOUNCE_SPEED;
-
         }
-
     }
+
+
 
     //ball speed cap
     if (myGame->ball.sx>BALL_RADIUS-2){

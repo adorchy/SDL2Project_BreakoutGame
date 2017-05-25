@@ -25,7 +25,7 @@
 #define PADDLE_HEIGHT 32
 
 // Brick
-#define BRICK_NUMBER 8
+#define BRICK_NUMBER 18
 #define BRICK_WIDTH 83
 #define BRICK_HEIGHT 31
 

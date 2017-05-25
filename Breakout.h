@@ -33,7 +33,7 @@ typedef struct Display{
 // Brick structure
 typedef struct Brick{
     float x,y;
-    int state;
+    int state,color;
 
 }Brick;
 
@@ -80,6 +80,7 @@ void renderPlayerScore (BreakoutGame *myGame, font myFont);
 void renderBreakoutGame (BreakoutGame myGame, font myFont);
 
 enum Collision CheckCollisionBallWalls (BreakoutGame myGame);
+enum Collision CheckCollisionBallBrick (BreakoutGame *myGame);
 void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont);
 void resetBall (BreakoutGame *myGame);
 enum BOOL CheckCollisionBallPaddles (BreakoutGame myGame);
