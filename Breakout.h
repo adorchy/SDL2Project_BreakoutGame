@@ -67,6 +67,7 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Break
 
 void handleIntroEvents(int *introIsRunning, int *gameIsRunning, BreakoutGame *myGame);
 void introWindow(BreakoutGame *myGame, font myFont);
+void loadBricksTexture (BreakoutGame *myGame);
 void handleGameEvents(int *gameIsRunning, BreakoutGame *myGame);
 void playerPaddleMove (BreakoutGame *myGame);
 

@@ -186,6 +186,29 @@ void introWindow(BreakoutGame *myGame, font myFont){
     myGame->display.g_pSurface=NULL;
 }
 
+void loadBricksTexture (BreakoutGame *myGame){
+    myGame->display.g_pSurface = IMG_Load("./assets/bricks.png");//Img loading
+
+    if(!myGame->display.g_pSurface)
+        {
+            fprintf(stdout,"IMG_Load: %s\n", IMG_GetError()); // handle error
+        }
+
+        if(myGame->display.g_pSurface)
+        {
+            // create a texture from an existing surface.
+            myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+            SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
+            //SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
+        }
+        else
+        {
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+
+        myGame->display.g_pSurface=NULL;
+}
+
 /********************************************************************************************
 PURPOSE :
 Events management (input=>keyboard)
@@ -293,21 +316,6 @@ void renderBricks(BreakoutGame *myGame) {
             rectangleDest.x=myGame->bricks[i].x;
             rectangleDest.y=myGame->bricks[i].y;
 
-            myGame->display.g_pSurface = IMG_Load("./assets/bricks.png");//Img loading
-
-            if(!myGame->display.g_pSurface)
-            {
-                fprintf(stdout,"IMG_Load: %s\n", IMG_GetError()); // handle error
-            }
-
-            if(myGame->display.g_pSurface)
-            {
-                // create a texture from an existing surface.
-                myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
-                SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
-                SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
-
-
                 if (myGame->bricks[i].color == 0)
                 {
                     SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&redRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
@@ -327,12 +335,8 @@ void renderBricks(BreakoutGame *myGame) {
                 {
                     SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureBrick,&blueRectangleSource,&rectangleDest); // copy a portion of the texture to the current rendering target
                 }
-                SDL_DestroyTexture(myGame->display.g_pTextureBrick);
-            }
-            else
-            {
-                fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
-            }
+                //SDL_DestroyTexture(myGame->display.g_pTextureBrick);
+
         }
     }
     myGame->display.g_pSurface=NULL;

@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     if(myGame.display.g_pTextureText2!=NULL)
         SDL_DestroyTexture(myGame.display.g_pTextureText2);
 
+    loadBricksTexture (&myGame);
+
    while (gameIsRunning) {
             handleGameEvents(&gameIsRunning,&myGame);
             playerPaddleMove (&myGame);
