@@ -47,10 +47,9 @@ typedef struct BreakoutGame{
     float timer;
     int score;
     int life;
+    int ballIsMoving;
 
 }BreakoutGame;
-
-
 
 //Used to load a font
 typedef struct font{
@@ -77,17 +76,18 @@ void playerPaddleMove (BreakoutGame *myGame);
 
 void renderBricks (BreakoutGame *myGame);
 void renderPaddle(BreakoutGame *myGame);
-void renderBorders(BreakoutGame *myGame, int colorR, int colorG, int colorB);
+void renderSides(BreakoutGame *myGame);
 void renderBall(BreakoutGame *myGame, int R, int G, int B);
 void renderPlayerScore (BreakoutGame *myGame, font myFont);
 void renderBreakoutGame (BreakoutGame myGame, font myFont);
 
 
 void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont);
+void resetBall (BreakoutGame *myGame);
 enum BOOL CheckCollisionBallPaddles (BreakoutGame myGame);
 void handleCollisionBallWalls (BreakoutGame *myGame);
 void handleCollisionBallBrick (BreakoutGame *myGame);
-void resetBall (BreakoutGame *myGame);
+void handleCollisionBallPaddle (BreakoutGame *myGame);
 void ballMovement(BreakoutGame *myGame);
 void delay(unsigned int frameLimit);
 void displayEndWindow (BreakoutGame *myGame, font myFont, int winner);

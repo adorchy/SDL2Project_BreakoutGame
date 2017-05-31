@@ -10,6 +10,9 @@
 #include <time.h>
 #include <math.h>
 
+#define TRY_NUMBER 5
+
+
 // Screen size
 #define SCREEN_WIDTH 1024
 #define SCREEN_HEIGHT 780

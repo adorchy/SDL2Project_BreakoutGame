@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
             playerPaddleMove (&myGame);
             handleCollisionBallWalls (&myGame);
             handleCollisionBallBrick (&myGame);
+            handleCollisionBallPaddle (&myGame);
             ballMovement(&myGame);
             renderBreakoutGame (myGame, myFont);
             checkVictoryConditions (&gameIsRunning, &myGame, myFont);

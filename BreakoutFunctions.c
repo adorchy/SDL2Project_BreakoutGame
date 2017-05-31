@@ -4,10 +4,10 @@
 void initBreakoutGame (BreakoutGame *myGame){
 
 //ball
- myGame->ball.px=SCREEN_WIDTH/3;
- myGame->ball.py=SCREEN_HEIGHT/2;
- myGame->ball.sx=4.0;
- myGame->ball.sy=2.50;
+ myGame->ball.px=SCREEN_WIDTH/2;
+ myGame->ball.py=SCREEN_HEIGHT-45;
+ myGame->ball.sx=-4.0;
+ myGame->ball.sy=-2.50;
  myGame->ball.radius=BALL_RADIUS;
 
  //paddle
@@ -18,13 +18,14 @@ void initBreakoutGame (BreakoutGame *myGame){
  //results
  myGame->timer=0.0;
  myGame->score=0;
- myGame->life=5;
+ myGame->life=TRY_NUMBER;
+ myGame->ballIsMoving=0;
 
 //Bricks
 int i,x,y;
 for (i=0, x=SIDE_WIDTH, y=120 ; i<BRICK_NUMBER; i++, x+=BRICK_WIDTH) // increment x
     {
-        if (i==BRICK_NUMBER/2 || i==BRICK_NUMBER/4 || i==BRICK_NUMBER*3/4) //every x brick number increment y by BRICK_HEIGHT and reset x to 0
+        if (i % 12 == 0) //every x brick number increment y by BRICK_HEIGHT and reset x to 0
         {
             x=SIDE_WIDTH;
             y+=BRICK_HEIGHT;
@@ -60,7 +61,7 @@ void initFont (font *myFont){
 /********************************************************************
 PURPOSE : SDL initialization
 INPUT : title, window position, window size, flags, gameObject
-OUTPUT: g_pWindow
+OUTPUT: g_pWindow, g_pRenderer
 *********************************************************************/
 int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,BreakoutGame *myGame){
 
@@ -91,6 +92,11 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Break
     return 1;
 }
 
+/*****************************************************
+PURPOSE : Load textures used in introduction window
+INPUT : fontObject, gameObject
+OUTPUT: g_pTextureText1, g_pTextureText2
+*****************************************************/
 void loadIntroTextures (BreakoutGame *myGame, font myFont){
     SDL_Color fontColor={255,255,255};
 
@@ -153,11 +159,11 @@ void handleIntroEvents(int *introIsRunning, int *gameIsRunning, BreakoutGame *my
     }
 }
 
-/********************************************************************
+/********************************************************
 PURPOSE : create and display an introduction window
 INPUT : gameObject, fontObject
 OUTPUT : window with 2 textures containing text
-*********************************************************************/
+********************************************************/
 void displayIntroWindow(BreakoutGame *myGame){
 
     SDL_Rect IntroRect1; //Rectangle used to display character chain
@@ -184,6 +190,10 @@ void displayIntroWindow(BreakoutGame *myGame){
 
 }
 
+/********************************************************
+PURPOSE : destroy textures used in introduction window
+INPUT : gameObject
+********************************************************/
 void destroyIntroTextures(BreakoutGame *myGame){
     if(myGame->display.g_pTextureText1!=NULL)
         SDL_DestroyTexture(myGame->display.g_pTextureText1);
@@ -192,6 +202,11 @@ void destroyIntroTextures(BreakoutGame *myGame){
         SDL_DestroyTexture(myGame->display.g_pTextureText2);
 }
 
+/**********************************************************
+PURPOSE : Load textures used in Breakout game
+INPUT : gameObject
+OUTPUT: g_pTextureBrick, g_pTexturePaddle, g_pTextureSide
+**********************************************************/
 void loadGameTextures (BreakoutGame *myGame){
     // bricks
     myGame->display.g_pSurface = IMG_Load("./assets/bricks.png");//Img loading
@@ -201,7 +216,6 @@ void loadGameTextures (BreakoutGame *myGame){
         // create a texture from an existing surface.
         myGame->display.g_pTextureBrick = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
         SDL_FreeSurface(myGame->display.g_pSurface); //  free an RGB surface
-        SDL_QueryTexture(myGame->display.g_pTextureBrick,NULL,NULL,NULL,NULL); // query the attributes of a texture
 
         if (!myGame->display.g_pTextureBrick)
         {
@@ -225,11 +239,6 @@ void loadGameTextures (BreakoutGame *myGame){
         {
             fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
         }
-        else
-        {
-            SDL_QueryTexture(myGame->display.g_pTexturePaddle,NULL,NULL,NULL,NULL); // query the attributes of a texture
-        }
-
     }
     else
     {
@@ -248,11 +257,6 @@ void loadGameTextures (BreakoutGame *myGame){
         {
             fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
         }
-        else
-        {
-            SDL_QueryTexture(myGame->display.g_pTextureSide,NULL,NULL,NULL,NULL); // query the attributes of a texture
-        }
-
     }
     else
     {
@@ -268,7 +272,7 @@ PURPOSE :
 Events management (input=>keyboard)
 Indicates in what direction player's paddle should go when player press Up or Down arrow key
 INPUT : state variable, gameObject
-OUTPUT : gameIsRunning or paddle1.dy
+OUTPUT : gameIsRunning, ballIsMoving, paddle1.dy
 *********************************************************************************************/
 void handleGameEvents(int *gameIsRunning, BreakoutGame *myGame){
 
@@ -285,6 +289,7 @@ void handleGameEvents(int *gameIsRunning, BreakoutGame *myGame){
                 {
                     case SDLK_LEFT: myGame->paddle.dx-=PADDLE_MOVE_INCREMENT; break;
                     case SDLK_RIGHT: myGame->paddle.dx+=PADDLE_MOVE_INCREMENT;break;
+                    case SDLK_SPACE: myGame->ballIsMoving=1; break;
                     default:break;
                 }
                 break;
@@ -305,13 +310,13 @@ void handleGameEvents(int *gameIsRunning, BreakoutGame *myGame){
     }
 }
 
-/***************************************************************************
+/*********************************************************************
 PURPOSE :
 Move player's paddle and give a smooth move to player's paddle
-Paddle max speed: 7 pixels per 16 ms
+Paddle max speed: 9 pixels per 16 ms
 INPUT : gameObject
-OUTPUT : paddle1.py
-****************************************************************************/
+OUTPUT : paddle.px
+*********************************************************************/
 void playerPaddleMove (BreakoutGame *myGame){
 
     if (myGame->paddle.px>myGame->paddle.dx){
@@ -332,7 +337,6 @@ void playerPaddleMove (BreakoutGame *myGame){
 /********************************************************************
 PURPOSE : render the bricks
 INPUT : gameObject
-OUTPUT : x bricks
 *********************************************************************/
 void renderBricks(BreakoutGame *myGame) {
 
@@ -396,9 +400,8 @@ void renderBricks(BreakoutGame *myGame) {
 }
 
 /********************************************************************
-PURPOSE : render the paddles
+PURPOSE : render the paddle
 INPUT : gameObject
-OUTPUT : 2 rectangles
 *********************************************************************/
 void renderPaddle(BreakoutGame *myGame) {
 
@@ -419,11 +422,10 @@ void renderPaddle(BreakoutGame *myGame) {
 }
 
 /********************************************************************
-PURPOSE : render a boundary line middle of the screen (width)
-INPUT : gameObject, color (RGB)
-OUTPUT : chain of espaced rectangles
+PURPOSE : render sides
+INPUT : gameObject
 *********************************************************************/
-void renderBorders(BreakoutGame *myGame, int colorR, int colorG, int colorB){
+void renderSides(BreakoutGame *myGame){
 
     SDL_Rect rectangleDest1;
     rectangleDest1.x=0;
@@ -468,12 +470,13 @@ void renderBall(BreakoutGame *myGame, int R, int G, int B){
 }
 
 /********************************************************************
-PURPOSE : display player's score
+PURPOSE : display player's score and player's life
 INPUT : gameObject, fontObject
-OUTPUT : 1 texture containing player's score
+OUTPUT : 2 textures
 *********************************************************************/
 void renderPlayerScore (BreakoutGame *myGame, font myFont){
 
+        // score
         char playerScoreArr [2];
         sprintf (playerScoreArr, "score: %i", myGame->score);
         //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
@@ -506,6 +509,40 @@ void renderPlayerScore (BreakoutGame *myGame, font myFont){
         else{
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
+        //Life
+        char playerTryArr [1];
+        sprintf (playerTryArr, "Life: %i", myGame->life);
+
+
+        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerTryArr, fontColor);
+
+        // Rectangle used to display number of try
+        SDL_Rect playerLifeRect;
+        playerLifeRect.x=150;//start point (x)
+        playerLifeRect.y=SCORE_WINDOW_Y; //start point (y)
+        playerLifeRect.w=SCORE_WINDOW_W-20; //Width
+        playerLifeRect.h=SCORE_WINDOW_Y; //Height
+
+        if(myGame->display.g_pSurface){
+
+                 myGame->display.g_pTextureText2 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+                 SDL_FreeSurface(myGame->display.g_pSurface);
+
+
+                 if(myGame->display.g_pTextureText2){
+                        // copy a portion of the texture to the current rendering target
+                        SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText2,NULL,&playerLifeRect);
+                        SDL_DestroyTexture(myGame->display.g_pTextureText2);
+                 }
+                 else{
+                        fprintf(stdout,"Failed to create texture (%s)\n",SDL_GetError());
+                }
+
+                }
+        else{
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+
 }
 
 /********************************************************************
@@ -519,7 +556,7 @@ void renderBreakoutGame (BreakoutGame myGame, font myFont){
     renderPaddle(&myGame);
     renderBall (&myGame,255,255,255);
     renderBricks(&myGame);
-    renderBorders (&myGame, 255, 255, 255);
+    renderSides (&myGame);
     renderPlayerScore (&myGame, myFont);
 
     SDL_RenderPresent(myGame.display.g_pRenderer); // update the screen with any rendering performed since the previous cal
@@ -528,24 +565,24 @@ void renderBreakoutGame (BreakoutGame myGame, font myFont){
     SDL_RenderClear(myGame.display.g_pRenderer);
 }
 
-/********************************************************************
-PURPOSE : Check if the AI or player has won.
-INPUT : state variable, gameObject, fontObject
+/*****************************************************************************************
+PURPOSE : Check if the player has won or lost and call displayEndWindow procedure if True
+INPUT : gameIsRunning, gameObject, fontObject
 OUTPUT : gameIsRunning
-*********************************************************************/
+*****************************************************************************************/
 
 void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont){
-    /*if (myGame->score.AI >=SCORE_TO_WIN){
-        endWindow (myGame, myFont, 0);
+    if (myGame->life <=0){
+        displayEndWindow (myGame, myFont, 0);
         SDL_Delay(4000);
         *gameIsRunning=0;
     }
 
-    if (myGame->score.player >=SCORE_TO_WIN){
-        endWindow (myGame, myFont, 1);
+    if (myGame->score == BRICK_NUMBER){
+        displayEndWindow (myGame, myFont, 1);
         SDL_Delay(4000);
         *gameIsRunning=0;
-    }*/
+    }
 }
 
 /********************************************************************
@@ -578,17 +615,14 @@ enum BOOL CheckCollisionBallPaddles (BreakoutGame myGame){
                             fprintf(stdout,"collision on Racket\n");
                             return True;
                         }
-
-
-
     return False;
 };
 
-/********************************************************************
-PURPOSE : Check if the ball hits a window's border
+/****************************************************************************
+PURPOSE : Check if the ball hits a window's border and adjust ball direction
 INPUT : gameObject
-OUTPUT : Return Right or Left or Top or Bottom or None
-*********************************************************************/
+OUTPUT : ball.sy, ball.sx, life
+****************************************************************************/
 void handleCollisionBallWalls (BreakoutGame *myGame){
     //check if ball hit right side
     if (myGame->ball.px >=SCREEN_WIDTH-BALL_RADIUS-SIDE_WIDTH)
@@ -616,15 +650,16 @@ void handleCollisionBallWalls (BreakoutGame *myGame){
     //check if ball hit bottom
     if (myGame->ball.py >= SCREEN_HEIGHT-BALL_RADIUS)
     {
+        myGame->life -=1;
         resetBall (myGame);
     }
 }
 
 /********************************************************************
-PURPOSE : Check if the ball hits a brick
+PURPOSE : Check if the ball hits a brick and adjust ball direction
 INPUT : gameObject
-OUTPUT : Return ball.sx or ball.sy
-*********************************************************************/
+OUTPUT : ball.sx or ball.sy
+********************************************************************/
 void handleCollisionBallBrick (BreakoutGame *myGame){
 
     int i;
@@ -668,7 +703,6 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
                 {
                     myGame->ball.sx*=-1;
                 }
-
             }
             else if (myGame->ball.px<=myGame->bricks[i].x) // hit left
             {
@@ -684,15 +718,12 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
     }
 }
 
-/************************************************************************
-PURPOSE :
-Change ball direction and position according to collision events
-Increment player's score and AI's score according to collision events
+/*****************************************************************
+PURPOSE : Check if the ball hits paddle and adjust ball direction
 INPUT : gameObject
-OUTPUT : ball.px, ball.py and/or ball.sy and/or (score.player or score.AI)
-*************************************************************************/
-void ballMovement(BreakoutGame *myGame){
-    // if ball hit a racket
+OUTPUT : ball.sx, ball.sy
+*****************************************************************/
+void handleCollisionBallPaddle (BreakoutGame *myGame){
     if (CheckCollisionBallPaddles (*myGame)== True)
     {
         if (myGame->ball.sy>0)
@@ -701,6 +732,14 @@ void ballMovement(BreakoutGame *myGame){
             myGame->ball.sy=-myGame->ball.sy*BOUNCE_SPEED;
         }
     }
+}
+
+/*****************************************
+PURPOSE : increment ball position
+INPUT : gameObject
+OUTPUT : ball.px, ball.py
+*****************************************/
+void ballMovement(BreakoutGame *myGame){
 
     //ball speed cap
     if (myGame->ball.sx>BALL_RADIUS-3)
@@ -723,10 +762,12 @@ void ballMovement(BreakoutGame *myGame){
         myGame->ball.sx=(BALL_RADIUS-3)*-1;
     }
 
-    //ball movement
-    myGame->ball.px+=myGame->ball.sx;
-    myGame->ball.py+=myGame->ball.sy;
-
+    if ( myGame->ballIsMoving==1)
+    {
+        //ball movement
+        myGame->ball.px+=myGame->ball.sx;
+        myGame->ball.py+=myGame->ball.sy;
+    }
 }
 
 /********************************************************************
@@ -734,7 +775,6 @@ PURPOSE :
 FrameRate management
 Capped at 60fps(1 frame/16ms => (1/60fps)*1000 =16.67ms)
 INPUT : FrameLimit = SDL_GetTicks() + 16;
-OUTPUT :
 *********************************************************************/
 void delay(unsigned int frameLimit){
 
@@ -759,9 +799,9 @@ void delay(unsigned int frameLimit){
 }
 
 /********************************************************************
-PURPOSE : create and display a window displaying the winner
-INPUT : gameObject, fontObject
-OUTPUT : window with 1 texture containing the name of the winner.
+PURPOSE : create and display a window displaying the result
+INPUT : gameObject, fontObject,
+OUTPUT : window with 1 texture containing the result.
 *********************************************************************/
 void displayEndWindow (BreakoutGame *myGame, font myFont, int winner){
 SDL_Color fontColor={255,255,255};
