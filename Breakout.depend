@@ -347,13 +347,13 @@
 1495741887 source:c:\users\arnaud\documents\programming\sdl2_breakout\main.c
 	"Breakout.h"
 
-1495792198 source:c:\users\adorc\documents\programmation projects\sdl2_breakout\main.c
+1496400232 source:c:\users\adorc\documents\programmation projects\sdl2_breakout\main.c
 	"Breakout.h"
 
-1496398117 c:\users\adorc\documents\programmation projects\sdl2_breakout\breakout.h
+1496400232 c:\users\adorc\documents\programmation projects\sdl2_breakout\breakout.h
 	"Define.h"
 
-1496398147 c:\users\adorc\documents\programmation projects\sdl2_breakout\define.h
+1496401173 c:\users\adorc\documents\programmation projects\sdl2_breakout\define.h
 	<stdio.h>
 	<stdlib.h>
 	<SDL2/SDL.h>
@@ -362,6 +362,6 @@
 	<time.h>
 	<math.h>
 
-1496398117 source:c:\users\adorc\documents\programmation projects\sdl2_breakout\breakoutfunctions.c
+1496401066 source:c:\users\adorc\documents\programmation projects\sdl2_breakout\breakoutfunctions.c
 	"Breakout.h"
 

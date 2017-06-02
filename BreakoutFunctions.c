@@ -3,6 +3,8 @@
 
 void initBreakoutGame (BreakoutGame *myGame){
 
+ static int initOnce =0;
+
 //ball
  myGame->ball.px=SCREEN_WIDTH/2;
  myGame->ball.py=SCREEN_HEIGHT-45;
@@ -17,8 +19,12 @@ void initBreakoutGame (BreakoutGame *myGame){
 
  //results
 
- myGame->playerScore=0;
- myGame->life=TRY_NUMBER;
+ if (initOnce == 0){
+    myGame->playerTotalScore=0;
+    myGame->life=TRY_NUMBER;
+    initOnce = 1;
+ }
+ myGame->playerCurrentTurnScore=0;
  myGame->ballIsMoving=0;
 
 //Bricks
@@ -478,9 +484,9 @@ OUTPUT : 2 textures
 void renderPlayerScore (BreakoutGame *myGame, font myFont){
 
         // score
-        char playerScoreArr [2];
-        sprintf (playerScoreArr, "score: %i", myGame->playerScore);
-        //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
+        char playerScoreArr [10];
+        sprintf (playerScoreArr, "score: %i", myGame->playerTotalScore);
+        //fprintf(stdout,"score player:%c%c%c\n", playerScoreArr[0],playerScoreArr[1],playerScoreArr[2]);
         SDL_Color fontColor={255,255,255};
         myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);
 
@@ -511,7 +517,7 @@ void renderPlayerScore (BreakoutGame *myGame, font myFont){
             fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
         }
         //Life
-        char playerTryArr [1];
+        char playerTryArr [8];
         sprintf (playerTryArr, "Life: %i", myGame->life);
 
 
@@ -567,19 +573,19 @@ void renderBreakoutGame (BreakoutGame myGame, font myFont){
 }
 
 /*****************************************************************************************
-PURPOSE : Check if the player has won or lost and call displayEndWindow procedure if True
+PURPOSE : Check if the player has removed all bricks and if has lost all his tries
 INPUT : gameIsRunning, gameObject, fontObject
-OUTPUT : gameIsRunning
+OUTPUT : gameIsRunning or
 *****************************************************************************************/
 
-void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont){
+void checkPlayerStats (int *gameIsRunning, BreakoutGame *myGame, font myFont){
     if (myGame->life <=0){
         displayEndWindow (myGame, myFont);
         SDL_Delay(4000);
         *gameIsRunning=0;
     }
 
-    if (myGame->playerScore % BRICK_NUMBER == 0 && myGame->playerScore!=0){
+    if (myGame->playerCurrentTurnScore == BRICK_NUMBER){
         initBreakoutGame (myGame);
     }
 }
@@ -676,7 +682,8 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             if (myGame->ball.py>=myGame->bricks[i].y+BRICK_HEIGHT) // hit bottom
             {
                 myGame->bricks[i].state=0;
-                myGame->playerScore+=1;
+                myGame->playerTotalScore+=1;
+                myGame->playerCurrentTurnScore+=1;
                 fprintf(stdout,"hit bottom\n");
                 if (myGame->ball.sy<0) // in case ball hits 2 bricks at the same time
                 {
@@ -686,7 +693,8 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             else if (myGame->ball.py<=myGame->bricks[i].y) // hit top
             {
                 myGame->bricks[i].state=0;
-                myGame->playerScore+=1;
+                myGame->playerTotalScore+=1;
+                myGame->playerCurrentTurnScore+=1;
                 fprintf(stdout,"hit top\n");
                 if (myGame->ball.sy>0) // in case ball hits 2 bricks at the same time
                 {
@@ -696,7 +704,8 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             else if (myGame->ball.px>=myGame->bricks[i].x+BRICK_WIDTH) // hit right
             {
                 myGame->bricks[i].state=0;
-                myGame->playerScore+=1;
+                myGame->playerTotalScore+=1;
+                myGame->playerCurrentTurnScore+=1;
                 fprintf(stdout,"hit right\n");
                 if (myGame->ball.sx<0) // in case ball hits 2 bricks at the same time
                 {
@@ -706,7 +715,8 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             else if (myGame->ball.px<=myGame->bricks[i].x) // hit left
             {
                 myGame->bricks[i].state=0;
-                myGame->playerScore+=1;
+                myGame->playerTotalScore+=1;
+                myGame->playerCurrentTurnScore+=1;
                 fprintf(stdout,"hit left\n");
                 if (myGame->ball.sx>0) // in case ball hits 2 bricks at the same time
                 {
@@ -840,8 +850,8 @@ void displayEndWindow (BreakoutGame *myGame, font myFont){
     Window2.w=SECONDARY_TITLE_W; //Width
     Window2.h=SECONDARY_TITLE_H; //Height
 
-    char playerScoreArr [12];
-    sprintf (playerScoreArr, "score: %i", myGame->playerScore);
+    char playerScoreArr [11];
+    sprintf (playerScoreArr, "score: %i", myGame->playerTotalScore);
         //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
 
     if (myGame->display.g_pTextureText4==NULL)

@@ -45,7 +45,8 @@ typedef struct BreakoutGame{
     Ball ball;
     Paddle paddle;
     Brick bricks[BRICK_NUMBER];
-    int playerScore;
+    int playerTotalScore;
+    int playerCurrentTurnScore;
     int life;
     int ballIsMoving;
 
@@ -82,7 +83,7 @@ void renderPlayerScore (BreakoutGame *myGame, font myFont);
 void renderBreakoutGame (BreakoutGame myGame, font myFont);
 
 
-void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont);
+void checkPlayerStats (int *gameIsRunning, BreakoutGame *myGame, font myFont);
 void resetBall (BreakoutGame *myGame);
 enum BOOL CheckCollisionBallPaddles (BreakoutGame myGame);
 void handleCollisionBallWalls (BreakoutGame *myGame);

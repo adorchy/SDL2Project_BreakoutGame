@@ -10,7 +10,7 @@
 #include <time.h>
 #include <math.h>
 
-#define TRY_NUMBER 9
+#define TRY_NUMBER 7
 
 
 // Screen size
@@ -50,7 +50,7 @@
 
 // Position of Secondary window
 
-#define SECONDARY_TITLE_X SCREEN_WIDTH/2-SCREEN_WIDTH/8;//start point (x)
+#define SECONDARY_TITLE_X SCREEN_WIDTH/2-SCREEN_WIDTH/7;//start point (x)
 #define SECONDARY_TITLE_Y SCREEN_HEIGHT/1.8;// start point (y)
 #define SECONDARY_TITLE_W SCREEN_WIDTH/4;
 #define SECONDARY_TITLE_H SCREEN_HEIGHT/15;

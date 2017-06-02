@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
             handleCollisionBallPaddle (&myGame);
             ballMovement(&myGame);
             renderBreakoutGame (myGame, myFont);
-            checkVictoryConditions (&gameIsRunning, &myGame, myFont);
+            checkPlayerStats (&gameIsRunning, &myGame, myFont);
 
             delay(frameLimit);
             frameLimit = SDL_GetTicks() + 16; //60 fps cap
