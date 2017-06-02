@@ -25,6 +25,7 @@ typedef struct Display{
      SDL_Texture *g_pTextureText1;
      SDL_Texture *g_pTextureText2;
      SDL_Texture *g_pTextureText3;
+     SDL_Texture *g_pTextureText4;
      SDL_Texture *g_pTexturePaddle;
      SDL_Texture *g_pTextureBrick;
      SDL_Texture *g_pTextureSide;
@@ -44,8 +45,7 @@ typedef struct BreakoutGame{
     Ball ball;
     Paddle paddle;
     Brick bricks[BRICK_NUMBER];
-    float timer;
-    int score;
+    int playerScore;
     int life;
     int ballIsMoving;
 
@@ -90,6 +90,6 @@ void handleCollisionBallBrick (BreakoutGame *myGame);
 void handleCollisionBallPaddle (BreakoutGame *myGame);
 void ballMovement(BreakoutGame *myGame);
 void delay(unsigned int frameLimit);
-void displayEndWindow (BreakoutGame *myGame, font myFont, int winner);
+void displayEndWindow (BreakoutGame *myGame, font myFont);
 void destroyGame(BreakoutGame *myGame);
 void releaseFont (font *myFont);

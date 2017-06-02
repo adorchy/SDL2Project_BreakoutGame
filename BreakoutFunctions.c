@@ -16,8 +16,8 @@ void initBreakoutGame (BreakoutGame *myGame){
  myGame->paddle.dx=SCREEN_WIDTH/2-PADDLE_WIDTH/2;
 
  //results
- myGame->timer=0.0;
- myGame->score=0;
+
+ myGame->playerScore=0;
  myGame->life=TRY_NUMBER;
  myGame->ballIsMoving=0;
 
@@ -70,6 +70,7 @@ int initSDL(char *title, int xpos,int ypos,int width, int height,int flags,Break
     myGame->display.g_pTextureText1=NULL;
     myGame->display.g_pTextureText2=NULL;
     myGame->display.g_pTextureText3=NULL;
+    myGame->display.g_pTextureText4=NULL;
     myGame->display.g_pTexturePaddle=NULL;
     myGame->display.g_pTextureBrick=NULL;
     myGame->display.g_pTextureSide=NULL;
@@ -478,7 +479,7 @@ void renderPlayerScore (BreakoutGame *myGame, font myFont){
 
         // score
         char playerScoreArr [2];
-        sprintf (playerScoreArr, "score: %i", myGame->score);
+        sprintf (playerScoreArr, "score: %i", myGame->playerScore);
         //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
         SDL_Color fontColor={255,255,255};
         myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);
@@ -573,15 +574,13 @@ OUTPUT : gameIsRunning
 
 void checkVictoryConditions (int *gameIsRunning, BreakoutGame *myGame, font myFont){
     if (myGame->life <=0){
-        displayEndWindow (myGame, myFont, 0);
+        displayEndWindow (myGame, myFont);
         SDL_Delay(4000);
         *gameIsRunning=0;
     }
 
-    if (myGame->score == BRICK_NUMBER){
-        displayEndWindow (myGame, myFont, 1);
-        SDL_Delay(4000);
-        *gameIsRunning=0;
+    if (myGame->playerScore % BRICK_NUMBER == 0 && myGame->playerScore!=0){
+        initBreakoutGame (myGame);
     }
 }
 
@@ -677,7 +676,7 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             if (myGame->ball.py>=myGame->bricks[i].y+BRICK_HEIGHT) // hit bottom
             {
                 myGame->bricks[i].state=0;
-                myGame->score+=1;
+                myGame->playerScore+=1;
                 fprintf(stdout,"hit bottom\n");
                 if (myGame->ball.sy<0) // in case ball hits 2 bricks at the same time
                 {
@@ -687,7 +686,7 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             else if (myGame->ball.py<=myGame->bricks[i].y) // hit top
             {
                 myGame->bricks[i].state=0;
-                myGame->score+=1;
+                myGame->playerScore+=1;
                 fprintf(stdout,"hit top\n");
                 if (myGame->ball.sy>0) // in case ball hits 2 bricks at the same time
                 {
@@ -697,7 +696,7 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             else if (myGame->ball.px>=myGame->bricks[i].x+BRICK_WIDTH) // hit right
             {
                 myGame->bricks[i].state=0;
-                myGame->score+=1;
+                myGame->playerScore+=1;
                 fprintf(stdout,"hit right\n");
                 if (myGame->ball.sx<0) // in case ball hits 2 bricks at the same time
                 {
@@ -707,7 +706,7 @@ void handleCollisionBallBrick (BreakoutGame *myGame){
             else if (myGame->ball.px<=myGame->bricks[i].x) // hit left
             {
                 myGame->bricks[i].state=0;
-                myGame->score+=1;
+                myGame->playerScore+=1;
                 fprintf(stdout,"hit left\n");
                 if (myGame->ball.sx>0) // in case ball hits 2 bricks at the same time
                 {
@@ -803,8 +802,9 @@ PURPOSE : create and display a window displaying the result
 INPUT : gameObject, fontObject,
 OUTPUT : window with 1 texture containing the result.
 *********************************************************************/
-void displayEndWindow (BreakoutGame *myGame, font myFont, int winner){
-SDL_Color fontColor={255,255,255};
+void displayEndWindow (BreakoutGame *myGame, font myFont){
+
+    SDL_Color fontColor={255,255,255};
 
     SDL_Rect Window1; //Rectangle used to display character chain
     Window1.x=MAIN_TITLE_X;//start point (x)
@@ -814,14 +814,7 @@ SDL_Color fontColor={255,255,255};
 
     if (myGame->display.g_pTextureText3==NULL)
     {
-        if (winner==0)
-        {
-            myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You lost!", fontColor);
-        }
-        else
-        {
-            myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "You won!", fontColor);
-        }
+        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, "Game Over!", fontColor);
 
         if(myGame->display.g_pSurface)
          {
@@ -840,6 +833,40 @@ SDL_Color fontColor={255,255,255};
             SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText3,NULL,&Window1);
             SDL_RenderPresent(myGame->display.g_pRenderer);
     }
+
+    SDL_Rect Window2; //Rectangle used to display character chain
+    Window2.x=SECONDARY_TITLE_X;//start point (x)
+    Window2.y=SECONDARY_TITLE_Y;// start point (y)
+    Window2.w=SECONDARY_TITLE_W; //Width
+    Window2.h=SECONDARY_TITLE_H; //Height
+
+    char playerScoreArr [12];
+    sprintf (playerScoreArr, "score: %i", myGame->playerScore);
+        //fprintf(stdout,"score player:%c%c\n", playerScoreArr[0],playerScoreArr[1]);
+
+    if (myGame->display.g_pTextureText4==NULL)
+    {
+        myGame->display.g_pSurface=TTF_RenderText_Blended(myFont.g_font, playerScoreArr, fontColor);
+
+        if(myGame->display.g_pSurface)
+         {
+                     myGame->display.g_pTextureText4 = SDL_CreateTextureFromSurface(myGame->display.g_pRenderer,myGame->display.g_pSurface);
+                     SDL_FreeSurface(myGame->display.g_pSurface);
+        }
+        else
+        {
+            fprintf(stdout,"Failed to create surface (%s)\n",SDL_GetError());
+        }
+    }
+
+    if(myGame->display.g_pTextureText4)
+    {
+            //  copy a portion of the texture to the current rendering target
+            SDL_RenderCopy(myGame->display.g_pRenderer,myGame->display.g_pTextureText4,NULL,&Window2);
+            SDL_RenderPresent(myGame->display.g_pRenderer);
+    }
+
+    myGame->display.g_pSurface=NULL;
 }
 
 /********************************************************************
@@ -867,6 +894,9 @@ void destroyGame(BreakoutGame *myGame){
 
     if(myGame->display.g_pTextureText3!=NULL)
         SDL_DestroyTexture(myGame->display.g_pTextureText3);
+
+    if(myGame->display.g_pTextureText4!=NULL)
+        SDL_DestroyTexture(myGame->display.g_pTextureText4);
 
     if(myGame->display.g_pTexturePaddle!=NULL)
         SDL_DestroyTexture(myGame->display.g_pTexturePaddle);
