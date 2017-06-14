@@ -484,7 +484,7 @@ OUTPUT : 2 textures
 void renderPlayerScore (BreakoutGame *myGame, font myFont){
 
         // score
-        char playerScoreArr [10];
+        char playerScoreArr [4];
         sprintf (playerScoreArr, "score: %i", myGame->playerTotalScore);
         //fprintf(stdout,"score player:%c%c%c\n", playerScoreArr[0],playerScoreArr[1],playerScoreArr[2]);
         SDL_Color fontColor={255,255,255};
@@ -737,7 +737,7 @@ void handleCollisionBallPaddle (BreakoutGame *myGame){
     {
         if (myGame->ball.sy>0)
         {
-            myGame->ball.sx*=1.15;
+            myGame->ball.sx*=1.1;
             myGame->ball.sy=-myGame->ball.sy*BOUNCE_SPEED;
         }
     }
